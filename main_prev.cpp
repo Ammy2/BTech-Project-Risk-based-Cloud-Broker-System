@@ -2,21 +2,72 @@
 #include<stdlib.h>
 #include<vector>
 #include<limits.h>
+#define n_users 10
+#define n_resource 5
+#define n_csp 5
+#define min_jr 20					// JR to be divided by 100, [0,1]
+#define max_jr 90
+#define n_iterations 10000
+#define freq 100
 using namespace std;
 
-const int n_users = 10; 
-const int n_resource = 5; 
-const int n_csp = 5;
-const int min_jr 20					// JR to be divided by 100, [0,1]
-const int max_jr 90
-const int n_iterations 10000
-const int freq 100
+class Collective_CSP {
+private:
+	vector<int> popularity(n_resource,0);
+	vector<vector<double> > avg_price(n_csp, vector<double>(n_resource,0.0));
+	vector<double> reputation(n_csp,0.0);
+public:
+	Collective_CSP(){
+		for(int i=0; i<n_resource; i++){
+			popularity[i] = rand()%90+10; //no. of times resource requested is between 10->100 initially
+		}
+		for(int i=0; i<n_csp; i++){
+			reputation[i] = rand();
+		}
+	}
+	void update_csp_manager(int csp_no, CSP csp){
+		for(int i=0; i<n_resource; i++){
+			avg_price[csp_no][i] = csp.getAvgPrice(i);
+		}
+	}
+	int getResourcePopularity(int res_no){
+		return popularity[res_no];
+	}
+	void setResourcePopularity(int res_no, int popularity){
+		//TODO
+	}
+
+	double getMarketCompetition(int res_no){
+		double avg;
+		for(int i=0; i<n_csp; i++){
+			avg += reputation[i]*avg_price[i][res_no];
+		}
+		return avg;
+	}
+
+	double getAveragePriceResource(int res_no){
+		double sum = 0.0;
+		for(int i=0; i<n_csp; i++){
+			sum += avg_price[i][res_no];
+		}
+		return sum/(double)n_csp;
+	}
+
+	double getReputation(int csp_no){
+		return reputation[csp_no];
+	}
+
+	//TODO
+	void setReputation(int csp_no, double reputation){
+
+	}
+};
 
 class CSP {
 private:
-	double user_res_price[n_users][n_resource];
-	double reputation_th;
-	double acceptance_rate;
+	vector<vector<double> > user_res_price(n_users, vector<double>(n_resource,0.0));
+	double reputation_th = 0.0;
+	double acceptance_rate = 0.0;
 public:
 	CSP(){
 		for(int i=0; i<n_users; i++){
@@ -48,7 +99,7 @@ public:
 		return user_res_price[user][resource];
 	}
 
-	void setUserResPrice(double price, int user_no, int res_no){
+	void setUserResPrice(double price, int user_no, res_no){
 		user_res_price[user_no][res_no] = price;
 	}
 
@@ -61,60 +112,6 @@ public:
 	}
 };
 
-
-class Collective_CSP {
-private:
-	int popularity[n_resource];
-	double avg_price[n_csp][n_resource];
-	double reputation[n_csp];
-public:
-	Collective_CSP(){
-		for(int i=0; i<n_resource; i++){
-			popularity[i] = rand()%90+10; //no. of times resource requested is between 10->100 initially
-		}
-		for(int i=0; i<n_csp; i++){
-			reputation[i] = rand();
-		}
-	}
-	void update_csp_manager(int csp_no, CSP csp){
-		for(int i=0; i<n_resource; i++){
-			avg_price[csp_no][i] = csp.getAvgPrice(i);
-		}
-	}
-	int getResourcePopularity(int res_no){
-		return popularity[res_no];
-	}
-	void setResourcePopularity(int res_no, int popularity){
-		//TODO
-	}
-
-	double getMarketCompetition(int res_no){
-		double avg;
-		for(int i=0; i<n_csp; i++){
-			avg += reputation[i] * avg_price[i][res_no];
-		}
-		return avg;
-	}
-
-	double getAveragePriceResource(int res_no){
-		double sum = 0.0;
-		for(int i=0; i<n_csp; i++){
-			sum += avg_price[i][res_no];
-		}
-		return sum/(double)n_csp;
-	}
-
-	double getReputation(int csp_no){
-		return reputation[csp_no];
-	}
-
-	//TODO
-	void setReputation(int csp_no, double reputation){
-
-	}
-};
-
-
 // Dynammic pricing strategy follows. 
 //Following code will return the price CSP i will be offering for resource j,(Rij).
 double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP csp_manager){
@@ -125,12 +122,10 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	double previous_price = csps[csp].getPrice(user, resource);
 	double threshold_rep = csps[csp].getThresholdRep();
 	double current_rep = csp_manager.getReputation(csp);
-	double acceptance_rate = csps[csp].getAcceptanceRate();
-
-	double Pij; //= some_function(); //TODO
+	double acceptance_rate = csps[i].getAcceptanceRate();
+	double Pij = some_function(); //TODO
 	return Pij;
 }
-
 
 typedef struct user{
 	double risk_lambda;
@@ -191,15 +186,13 @@ int main(){
 	Collective_CSP csp_manager;
 	vector<CSP> csps;
 	for(int i=0; i<n_csp; i++){
-		//CSP csp;
-		csps.push_back(new csp[];
+		csps.push_back(new CSP());
 		csp_manager.update_csp_manager(i,csps[i]);
 	}
 	// Aman's portion. Implementing users utility function.
 	user_initialize();
 	interations();
-	
-	int user, resource,csp;
+
 	double price = getDynamicPrice(csp, resource, user, csps, csp_manager);
 	return 0;
 }
