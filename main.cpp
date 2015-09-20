@@ -1,9 +1,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<vector>
+#include<limits.h>
 #define n_users 10
-#define n_resources 5
+#define n_resource 5
 #define n_csp 5
+#define min_jr 20					// JR to be divided by 100, [0,1]
+#define max_jr 90
+#define n_iterations 10000
+#define freq 100
 using namespace std;
 
 class Collective_CSP {
@@ -122,6 +127,61 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	return Pij;
 }
 
+typedef struct user{
+	double risk_lambda;
+	double budget;
+	vector<double> job_rating;	// for all CSP
+	vector<double> local_trust;
+	vector<double> ref_credit;  // for other reference users
+	vector<double> ref_trust;	// for all CSP
+	vector<double> util_res;	// A[i] denotes the csp index with max utility, for i'th resource
+}user;
+user *users;
+double alpha;
+void user_initialize(){
+	users = new user[n_users];
+	for(int i=0;i<n_users;i++){
+		users[i].risk_lambda = rand()%4 -2;	// [-2,2]
+		for(int j=0;j<n_csp; j++){
+			double temp = (double)(((rand()%(max_jr-min_jr)) + min_jr)/100.00);	//[0,1]
+			users[i].job_rating.push_back(temp);
+		}
+		for(int res=0; res<n_resource; res++){
+			users[i].util_res.push_back(INT_MIN);
+		}
+	}
+	alpha = (double)((rand()%10)*0.1);
+}
+void interations(){
+	for(int iter=1;iter<=n_iterations;iter++){
+		if(iter%freq==0){
+			// call dynamic pricing. Update respected things
+		}
+		// Using previous Job Ratings to update things for users
+		for(int u=0;u<n_users;u++){
+			// reset user's utility
+			for(int res=0;res<n_resource;res++)
+				users[i].util_res[res] = INT_MIN;
+			// for every csp
+			for( int c=0; c<n_csp; c++){
+				users[u].local_trust = getLocalTrust(u,c,iter);
+				users[u].ref_credit = getReferenceCredit(u,c,iter);
+				users[u].ref_trust = getReferenceTrust(u,c,iter);
+				for(int res=0; res<n_resource; res++){
+					double utility = computeUtility(u,c,res,iter);
+					if(utility> users[u].util_res[res]){
+						// u-user finds resouce-res by csp c best!
+						users[u].util_res[res] = c;
+					}
+				}
+			}
+			// User decided, which csp to work with.
+			// users[u].util_res[res] contains the chosen csp index.
+		}
+
+	}
+}
+
 int main(){
 	Collective_CSP csp_manager;
 	vector<CSP> csps;
@@ -129,7 +189,9 @@ int main(){
 		csps.push_back(new CSP());
 		csp_manager.update_csp_manager(i,csps[i]);
 	}
-	// Amans portion. Implementing users utility function.
+	// Aman's portion. Implementing users utility function.
+	user_initialize();
+	interations();
 
 	double price = getDynamicPrice(csp, resource, user, csps, csp_manager);
 	return 0;
