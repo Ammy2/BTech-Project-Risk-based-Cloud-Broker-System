@@ -126,8 +126,7 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	double threshold_rep = csps[csp].getThresholdRep();
 	double current_rep = csp_manager.getReputation(csp);
 	double acceptance_rate = csps[csp].getAcceptanceRate();
-
-	double Pij; //= some_function(); //TODO
+	double Pij = previous_price + ((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
 	return Pij;
 }
 
