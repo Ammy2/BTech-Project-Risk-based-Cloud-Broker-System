@@ -173,17 +173,17 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 
 	int resouce_popularity = csp_manager.getResourcePopularity(resource);
 	double avg_price_resource = csp_manager.getMarketCompetition(resource);
-	cout<<"AVG Price->"<<avg_price_resource<<endl;
+	//cout<<"AVG Price->"<<avg_price_resource<<endl;
 	double avg_market_price = csp_manager.getAveragePriceResource(resource);
-	cout<<"AVG Market Price->"<<avg_market_price<<endl;
+	//cout<<"AVG Market Price->"<<avg_market_price<<endl;
 	double previous_price = csps[csp].getPrice(user, resource);
 	double threshold_rep = csps[csp].getThresholdRep();
-	cout<<"Th Repo->"<<threshold_rep<<endl;
+	//cout<<"Th Repo->"<<threshold_rep<<endl;
 	double current_rep = csp_manager.getReputation(csp);
-	cout<<"Current Repo->"<<current_rep<<endl;
+	//cout<<"Current Repo->"<<current_rep<<endl;
 	double acceptance_rate = csps[csp].getAcceptanceRate();
 	double Pij = previous_price + ((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
-	cout<<"Test->"<<((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity<<endl;
+	//cout<<"Test->"<<((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity<<endl;
 	return Pij;
 }
 
@@ -207,10 +207,12 @@ void print_initial_data(){
 	cout<<" #Users: "<<n_users<<endl;
 	cout<<" #CSPs: "<<n_csp<<endl;
 	cout<<" #Resources: "<<n_resource<<endl;
-	cout<<" min_jr: "<<min_jr<<endl;
-	cout<<" max_jr: "<<max_jr<<endl;
+	cout<<" min_jr: "<<min_jr/100.0<<endl;
+	cout<<" max_jr: "<<max_jr/100.0<<endl;
 	cout<<" min_budget: "<<min_budget<<endl;
 	cout<<" max_budget: "<<max_budget<<endl;
+	cout<<" min_repo: "<<min_repo/100.0<<endl;
+	cout<<" max_repo: "<<max_repo/100.0<<endl;
 	cout<<" n_iterations: "<<n_iterations<<endl;
 	cout<<" freq: "<<freq<<endl;
 	cout<<" Alpha: "<<alpha<<endl;
@@ -356,17 +358,17 @@ int main(){
 	for(int i=0; i<n_csp; i++){
 		CSP csp;
 		csps.push_back(csp);
-		csps[i].printData(i);
+		//csps[i].printData(i);
 		csp_manager.update_csp_manager(i,csps[i]);
 	}
-	csp_manager.printData();
-	double price;
-	price = getDynamicPrice(1,1,3,csps, csp_manager);
-	cout<<"Price->"<<price<<endl;
-	price = getDynamicPrice(2,4,7,csps, csp_manager);
-	cout<<"Price->"<<price<<endl;
-	price = getDynamicPrice(3,0,6,csps, csp_manager);
-	cout<<"Price->"<<price<<endl;	// Aman's portion. Implementing users utility function.
+	//csp_manager.printData();
+	// double price;
+	// price = getDynamicPrice(1,1,3,csps, csp_manager);
+	// cout<<"Price->"<<price<<endl;
+	// price = getDynamicPrice(2,4,7,csps, csp_manager);
+	// cout<<"Price->"<<price<<endl;
+	// price = getDynamicPrice(3,0,6,csps, csp_manager);
+	// cout<<"Price->"<<price<<endl;	// Aman's portion. Implementing users utility function.
 
 	user_initialize();
 	interations();
