@@ -147,6 +147,7 @@ typedef struct user{
 }user;
 user *users;
 double alpha;
+
 void user_initialize(){
 	users = new user[n_users];
 	for(int i=0;i<n_users;i++){
@@ -196,7 +197,7 @@ double getReferenceTrust(int uid, int cid, int iter){
 	return (double)(num/den);
 }
 double computeUtility(int uid, int cid, int res, int iter){
-	double price_res_cid;		// price offered by csp cid of resource res at iter
+	double price_res_cid = csps[cid].getPrice(uid, res);		// price offered by csp cid of resource res at iter
 	double exp_cost = price_res_cid / users[uid].budget;
 	double utility = ( 1 - exp(-1.0*users[uid].risk_lambda*users[uid].ref_trust[cid])) / (1-exp(-1.0*users[uid].risk_lambda));
 	utility /= exp_cost;
@@ -211,10 +212,11 @@ void updateJobRatings(int uid, int iter){
 	users[uid].job_rating.push_back(jratings);
 }
 void interations(){
+	vector<double> revenue(n_csp, 0.00);
 	for(int iter=1;iter<=n_iterations;iter++){
 		// NOTE: user user_rating of iter-1'th index
 		if(iter%freq==0){
-			// call dynamic pricing. Update respected things
+			// Fetch Points {iter: [revenues for csps]} 
 		}
 		// Using previous Job Ratings to update things for users
 		for(int u=0;u<n_users;u++){
@@ -236,9 +238,15 @@ void interations(){
 			}
 			// User decided, which csp to work with.
 			// users[u].util_res[res] contains the chosen csp index.
+			for(int res=0;res<n_resource;res++){
+				int chosen_csp = users[u].util_res[res];
+				revenue[chosen_csp] += csps[chosen_csp].getPrice(u, res);
+			}
 
 			// Now Update new Job Ratings
 			updateJobRatings(u, iter);
+
+			// Apply dynamic pricing
 		}
 	}
 }
