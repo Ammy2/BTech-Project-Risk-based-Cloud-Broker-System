@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<iostream>
 #include<stdlib.h>
 #include<vector>
 #include<limits.h>
@@ -10,10 +11,11 @@ const int n_resource = 5;
 const int n_csp = 5;
 const int min_jr = 20;					// JR to be divided by 100, [0,1]
 const int max_jr = 90;
-const int n_iterations = 10000;
+const int n_iterations = 1000;
 const int freq = 100;
 const int min_budget = 10;
 const int max_budget = 100;
+
 
 class CSP {
 private:
@@ -48,6 +50,7 @@ public:
 	}
 
 	double getPrice(int user, int resource){
+		//cout << user<<" "<<resource<<endl;
 		return user_res_price[user][resource];
 	}
 
@@ -117,6 +120,9 @@ public:
 	}
 };
 
+Collective_CSP csp_manager;
+vector<CSP> csps;
+
 void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
 	csps[csp].setUserResPrice(price, user, resource);
 	csp_manager.update_csp_manager(csp,csps[csp]);
@@ -152,6 +158,27 @@ typedef struct user{
 user *users;
 double alpha;
 
+void print_initial_data(){
+	cout<<" #Users: "<<n_users<<endl;
+	cout<<" #CSPs: "<<n_csp<<endl;
+	cout<<" #Resources: "<<n_resource<<endl;
+	cout<<" min_jr: "<<min_jr<<endl;
+	cout<<" max_jr: "<<max_jr<<endl;
+	cout<<" min_budget: "<<min_budget<<endl;
+	cout<<" max_budget: "<<max_budget<<endl;
+	cout<<" n_iterations: "<<n_iterations<<endl;
+	cout<<" freq: "<<freq<<endl;
+	cout<<" Alpha: "<<alpha<<endl;
+	for(int u=0;u<n_users;u++){
+		cout<<" User: "<<u<<endl;
+		cout<<" Risk Lambda: "<<users[u].risk_lambda<<endl;
+		cout<<" Budget: "<<users[u].budget<<endl;
+		cout<<" Initial Job Ratings: "<<endl;
+		for(int c=0;c<n_csp;c++){
+			cout<<"  CSP: "<<c<<" JRating: "<<users[u].job_rating[0][c]<<endl;
+		}
+	}
+}
 void user_initialize(){
 	users = new user[n_users];
 	for(int i=0;i<n_users;i++){
@@ -166,17 +193,24 @@ void user_initialize(){
 		users[i].job_rating.push_back(jratings);
 		users[i].budget = (double)(1.00 * (rand()%(max_budget-min_budget))) + 1.00*min_budget;
 	}
-	alpha = (double)((rand()%10)*0.1);
+	alpha = 0.83;
+	print_initial_data();
 }
-double getLocalTrust(int uid, int cid, int iter){
-	int n = 1;
-	double num=0.0,den=0.0;
-	while(n<=iter){
-		num += pow(alpha, n) * users[uid].job_rating[iter-1][cid];
-		den += pow(alpha, n);
-		n++;
+void updateLocalTrust(int iter){
+	for(int uid=0;uid<n_users;uid++){
+		for(int cid=0;cid<n_csp;cid++){
+			int n = 1;
+			double num=0.0,den=0.0;
+			int tt = iter-1;
+			while(n<=iter){
+				num += pow(alpha, n) * users[uid].job_rating[tt][cid];
+				den += pow(alpha, n);
+				n++;
+				tt--;
+			}
+			users[uid].local_trust[cid]=(double)(num/den);
+		}
 	}
-	return (double)(num/den);
 }
 void updateReferenceCredit(int uid, int cid, int iter){
 	for(int other=0; other<n_users; other++){
@@ -195,15 +229,22 @@ double getReferenceTrust(int uid, int cid, int iter){
 	for(int other=0; other<n_users; other++){
 		if(other==uid)
 			continue;
-		num += (users[uid].ref_credit[other] * users[other].local_trust[cid]);
+		num += (users[uid].ref_credit[other]) * (users[other].local_trust[cid]);
 		den += users[uid].ref_credit[other];
 	}
-	return (double)(num/den);
+	return (num/(double)den);
 }
 double computeUtility(int uid, int cid, int res, int iter){
 	double price_res_cid = csps[cid].getPrice(uid, res);		// price offered by csp cid of resource res at iter
+	
 	double exp_cost = price_res_cid / users[uid].budget;
-	double utility = ( 1 - exp(-1.0*users[uid].risk_lambda*users[uid].ref_trust[cid])) / (1-exp(-1.0*users[uid].risk_lambda));
+	
+	double a = users[uid].risk_lambda;
+	double b = users[uid].ref_trust[cid];
+	double top = -1.0*(users[uid].ref_trust[cid]);
+	
+	double utility = ( 1.0 - exp(top)) / (1.0-exp(-1.0*users[uid].risk_lambda));
+
 	utility /= exp_cost;
 	return utility;
 }
@@ -218,22 +259,28 @@ void updateJobRatings(int uid, int iter){
 void interations(){
 	vector<double> revenue(n_csp, 0.00);
 	for(int iter=1;iter<=n_iterations;iter++){
+		//cout << "Iteration : "<<iter<<endl;
 		// NOTE: user user_rating of iter-1'th index
 		if(iter%freq==0){
 			// Fetch Points {iter: [revenues for csps]} 
+			cout <<"I"<<iter<<endl;
+			for(int c=0;c<n_csp;c++)
+				cout<<revenue[c]<<" ";
+			cout<<endl;
 		}
 		// Using previous Job Ratings to update things for users
+		updateLocalTrust(iter);
 		for(int u=0;u<n_users;u++){
 			// reset user's utility
 			for(int res=0;res<n_resource;res++)
 				users[u].util_res[res] = INT_MIN;
 			// for every csp
 			for( int c=0; c<n_csp; c++){
-				users[u].local_trust[c] = getLocalTrust(u,c,iter);
 				updateReferenceCredit(u,c,iter);
 				users[u].ref_trust[c] = getReferenceTrust(u,c,iter);
 				for(int res=0; res<n_resource; res++){
 					double utility = computeUtility(u,c,res,iter);
+					//cout<<"U "<<utility<<endl;
 					if(utility> users[u].util_res[res]){
 						// u-user finds resouce-res by csp c best!
 						users[u].util_res[res] = c;
@@ -251,13 +298,16 @@ void interations(){
 			updateJobRatings(u, iter);
 
 			// Apply dynamic pricing
+			for(int c=0;c<n_csp;c++)
+				for(int res=0;res<n_resource;res++)
+					updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager), csps, csp_manager);
 		}
 	}
 }
 
+
+
 int main(){
-	Collective_CSP csp_manager;
-	vector<CSP> csps;
 	for(int i=0; i<n_csp; i++){
 		CSP csp;
 		csps.push_back(csp);
