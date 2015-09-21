@@ -10,14 +10,14 @@ using namespace std;
 const int n_users = 10; 
 const int n_resource = 5; 
 const int n_csp = 5;
-const int min_jr = 20;					// JR to be divided by 100, [0,1]
-const int max_jr = 90;
+const int min_jr = 40;					// JR to be divided by 100, [0,1]
+const int max_jr = 50;
 const int n_iterations = 1000;
 const int freq = 100;
-const int min_budget = 10;
-const int max_budget = 100;
-const int max_repo = 80;
-const int min_repo = 20;
+const int min_budget = 50;
+const int max_budget = 55;
+const int max_repo = 60;
+const int min_repo = 40;
 
 
 class CSP {
@@ -250,7 +250,7 @@ void updateLocalTrust(int iter){
 			double num=0.0,den=0.0;
 			int tt = iter-1;
 			while(n<=iter){
-				num += pow(alpha, n) * users[uid].job_rating[0][cid];
+				num += pow(alpha, n) * users[uid].job_rating[tt][cid];
 				den += pow(alpha, n);
 				n++;
 				tt--;
@@ -265,7 +265,7 @@ void updateReferenceCredit(int uid, int cid, int iter){
 			continue;
 		double num=0.0;
 		for(int c=0;c<n_csp;c++){
-			num += fabs( users[uid].job_rating[0][c] - users[other].local_trust[c]);
+			num += fabs( users[uid].job_rating[iter-1][c] - users[other].local_trust[c]);
 		}
 		users[uid].ref_credit[other] = 1.00 - (double)(num/n_csp);
 	}
@@ -341,13 +341,13 @@ void interations(){
 				revenue[chosen_csp] += csps[chosen_csp].getPrice(u, res);
 			}
 
-			// // Now Update new Job Ratings
-			// updateJobRatings(u, iter);
+			// Now Update new Job Ratings
+			updateJobRatings(u, iter);
 
-			// // Apply dynamic pricing
-			// for(int c=0;c<n_csp;c++)
-			// 	for(int res=0;res<n_resource;res++)
-			// 		updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager), csps, csp_manager);
+			// Apply dynamic pricing
+			for(int c=0;c<n_csp;c++)
+				for(int res=0;res<n_resource;res++)
+					updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager), csps, csp_manager);
 		}
 	}
 }

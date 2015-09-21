@@ -310,7 +310,7 @@ void interations(){
 		// NOTE: user user_rating of iter-1'th index
 		if(iter%freq==0){
 			// Fetch Points {iter: [revenues for csps]} 
-			cout <<"I"<<iter<<endl;
+			//cout <<"I"<<iter<<endl;
 			for(int c=0;c<n_csp;c++)
 				cout<<revenue[c]<<" ";
 			cout<<endl;
