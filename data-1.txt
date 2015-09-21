@@ -1,0 +1,228 @@
+ #Users: 10
+ #CSPs: 5
+ #Resources: 5
+ min_jr: 0.2
+ max_jr: 0.9
+ min_budget: 10
+ max_budget: 100
+ min_repo: 0.2
+ max_repo: 0.8
+ n_iterations: 1000
+ freq: 100
+ Alpha: 0.83
+ User: 0
+ Risk Lambda: -2
+ Budget: 48
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.76
+  CSP: 1 JRating: 0.52
+  CSP: 2 JRating: 0.49
+  CSP: 3 JRating: 0.39
+  CSP: 4 JRating: 0.3
+ User: 1
+ Risk Lambda: 1
+ Budget: 84
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.23
+  CSP: 1 JRating: 0.71
+  CSP: 2 JRating: 0.81
+  CSP: 3 JRating: 0.7
+  CSP: 4 JRating: 0.73
+ User: 2
+ Risk Lambda: -2
+ Budget: 49
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.43
+  CSP: 1 JRating: 0.59
+  CSP: 2 JRating: 0.81
+  CSP: 3 JRating: 0.39
+  CSP: 4 JRating: 0.46
+ User: 3
+ Risk Lambda: -1
+ Budget: 66
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.83
+  CSP: 1 JRating: 0.78
+  CSP: 2 JRating: 0.6
+  CSP: 3 JRating: 0.85
+  CSP: 4 JRating: 0.66
+ User: 4
+ Risk Lambda: -2
+ Budget: 16
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.3
+  CSP: 1 JRating: 0.6
+  CSP: 2 JRating: 0.24
+  CSP: 3 JRating: 0.86
+  CSP: 4 JRating: 0.22
+ User: 5
+ Risk Lambda: 1
+ Budget: 12
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.45
+  CSP: 1 JRating: 0.46
+  CSP: 2 JRating: 0.49
+  CSP: 3 JRating: 0.48
+  CSP: 4 JRating: 0.27
+ User: 6
+ Risk Lambda: -2
+ Budget: 22
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.22
+  CSP: 1 JRating: 0.69
+  CSP: 2 JRating: 0.39
+  CSP: 3 JRating: 0.46
+  CSP: 4 JRating: 0.5
+ User: 7
+ Risk Lambda: 1
+ Budget: 35
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.76
+  CSP: 1 JRating: 0.31
+  CSP: 2 JRating: 0.33
+  CSP: 3 JRating: 0.82
+  CSP: 4 JRating: 0.31
+ User: 8
+ Risk Lambda: 1
+ Budget: 30
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.89
+  CSP: 1 JRating: 0.81
+  CSP: 2 JRating: 0.64
+  CSP: 3 JRating: 0.29
+  CSP: 4 JRating: 0.51
+ User: 9
+ Risk Lambda: 1
+ Budget: 68
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.65
+  CSP: 1 JRating: 0.68
+  CSP: 2 JRating: 0.77
+  CSP: 3 JRating: 0.2
+  CSP: 4 JRating: 0.24
+I100
+66429 17523 15048 14256 5445 
+I200
+133529 35223 30248 28656 10945 
+I300
+200629 52923 45448 43056 16445 
+I400
+267729 70623 60648 57456 21945 
+I500
+334829 88323 75848 71856 27445 
+I600
+401929 106023 91048 86256 32945 
+I700
+469029 123723 106248 100656 38445 
+I800
+536129 141423 121448 115056 43945 
+I900
+603229 159123 136648 129456 49445 
+I1000
+670329 176823 151848 143856 54945 
+Prices
+ CSP0
+  User0
+   12 37 20 29 13 
+  User1
+   16 30 36 22 26 
+  User2
+   21 18 17 39 32 
+  User3
+   20 32 13 37 25 
+  User4
+   19 12 32 28 39 
+  User5
+   17 43 26 21 12 
+  User6
+   39 23 31 49 34 
+  User7
+   27 48 14 45 20 
+  User8
+   23 16 21 30 46 
+  User9
+   43 32 20 46 11 
+ CSP1
+  User0
+   14 17 26 35 16 
+  User1
+   19 43 27 14 25 
+  User2
+   32 35 24 17 44 
+  User3
+   14 13 40 17 18 
+  User4
+   46 28 38 34 13 
+  User5
+   21 44 49 22 30 
+  User6
+   46 18 29 22 36 
+  User7
+   36 24 29 45 20 
+  User8
+   44 28 37 11 27 
+  User9
+   32 47 22 22 46 
+ CSP2
+  User0
+   16 11 35 19 14 
+  User1
+   29 10 19 41 47 
+  User2
+   27 21 11 45 39 
+  User3
+   17 17 26 27 43 
+  User4
+   36 15 36 13 29 
+  User5
+   34 18 41 22 39 
+  User6
+   33 29 40 18 38 
+  User7
+   45 30 39 46 13 
+  User8
+   28 15 16 21 11 
+  User9
+   45 29 18 14 38 
+ CSP3
+  User0
+   43 30 44 14 14 
+  User1
+   44 37 26 33 21 
+  User2
+   37 15 29 26 42 
+  User3
+   41 47 38 45 17 
+  User4
+   44 11 28 45 39 
+  User5
+   47 45 43 28 38 
+  User6
+   33 21 18 19 26 
+  User7
+   14 13 13 23 28 
+  User8
+   16 10 34 28 18 
+  User9
+   18 19 47 47 46 
+ CSP4
+  User0
+   40 33 20 29 22 
+  User1
+   15 14 40 35 29 
+  User2
+   44 36 39 12 32 
+  User3
+   34 47 37 45 14 
+  User4
+   38 21 32 38 29 
+  User5
+   33 36 18 30 32 
+  User6
+   41 20 15 11 31 
+  User7
+   20 48 35 10 26 
+  User8
+   14 36 12 35 38 
+  User9
+   26 12 28 14 47 
