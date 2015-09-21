@@ -117,10 +117,14 @@ public:
 	}
 };
 
+void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
+	csps[csp].setUserResPrice(price, user, resource);
+	csp_manager.update_csp_manager(csp,csps[csp]);
+}
 
 // Dynammic pricing strategy follows. 
 //Following code will return the price CSP i will be offering for resource j,(Rij).
-double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP csp_manager){
+double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager){
 
 	int resouce_popularity = csp_manager.getResourcePopularity(resource);
 	double avg_price_resource = csp_manager.getMarketCompetition(resource);
@@ -262,8 +266,5 @@ int main(){
 	// Aman's portion. Implementing users utility function.
 	user_initialize();
 	interations();
-	
-	int user, resource,csp;
-	double price = getDynamicPrice(csp, resource, user, csps, csp_manager);
 	return 0;
 }
