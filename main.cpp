@@ -10,14 +10,14 @@ using namespace std;
 const int n_users = 10; 
 const int n_resource = 5; 
 const int n_csp = 5;
-const int min_jr = 20;					// JR to be divided by 100, [0,1]
-const int max_jr = 90;
+const int min_jr = 50;					// JR to be divided by 100, [0,1]
+const int max_jr = 55;
 const int n_iterations = 1000;
 const int freq = 100;
 const int min_budget = 10;
 const int max_budget = 100;
-const int max_repo = 80;
-const int min_repo = 20;
+const int max_repo = 55;
+const int min_repo = 50;
 
 
 class CSP {
@@ -194,9 +194,9 @@ typedef struct user{
 	vector< vector<double> > job_rating;	// for all CSP in a particular iterations
 	vector<double> local_trust;
 	vector<double> ref_credit;  // for other reference users
-	 vector<double> ref_trust;	// for all CSP
-	vector<double> util_res;	// A[i] denotes the csp index with max utility, for i'th resource
-	user(): local_trust(n_csp, 0), ref_credit(n_users, 0), ref_trust(n_csp, 0), util_res(n_resource, INT_MIN)
+	vector<double> ref_trust;	// for all CSP
+	vector<pair<double, int> > util_res;	// A[i] denotes the csp index along with max utility, for i'th resource
+	user(): local_trust(n_csp, 0), ref_credit(n_users, 0), ref_trust(n_csp, 0), util_res(n_resource, make_pair(INT_MIN, -1))
 	{}
 }user;
 
@@ -319,8 +319,10 @@ void interations(){
 		updateLocalTrust(iter);
 		for(int u=0;u<n_users;u++){
 			// reset user's utility
-			for(int res=0;res<n_resource;res++)
-				users[u].util_res[res] = INT_MIN;
+			for(int res=0;res<n_resource;res++){
+				users[u].util_res[res].second = -1;
+				users[u].util_res[res].first = INT_MIN;
+			}
 			// for every csp
 			for( int c=0; c<n_csp; c++){
 				updateReferenceCredit(u,c,iter);
@@ -328,16 +330,17 @@ void interations(){
 				for(int res=0; res<n_resource; res++){
 					double utility = computeUtility(u,c,res,iter);
 					//cout<<"U "<<utility<<endl;
-					if(utility> users[u].util_res[res]){
+					if(utility> users[u].util_res[res].first){
 						// u-user finds resouce-res by csp c best!
-						users[u].util_res[res] = c;
+						users[u].util_res[res].second = c;
+						users[u].util_res[res].first = utility;
 					}
 				}
 			}
 			// User decided, which csp to work with.
 			// users[u].util_res[res] contains the chosen csp index.
 			for(int res=0;res<n_resource;res++){
-				int chosen_csp = users[u].util_res[res];
+				int chosen_csp = users[u].util_res[res].second;
 				revenue[chosen_csp] += csps[chosen_csp].getPrice(u, res);
 			}
 
