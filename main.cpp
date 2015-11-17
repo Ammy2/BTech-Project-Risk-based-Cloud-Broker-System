@@ -18,13 +18,16 @@ const int min_budget = 10;
 const int max_budget = 100;
 const int max_repo = 55;
 const int min_repo = 50;
+const int max_acc = 50;
+const int min_acc = 30;
+const double epsilon = 0.4;
 
 
 class CSP {
 private:
 	double user_res_price[n_users][n_resource];
 	double reputation_th;
-	double acceptance_rate;
+	double acceptance_th;
 public:
 	CSP(){
 		for(int i=0; i<n_users; i++){
@@ -33,7 +36,7 @@ public:
 			}
 		}
 		reputation_th = (double)(rand()%(max_repo-min_repo) + min_repo)/100.00;
-		acceptance_rate = rand();
+		acceptance_th = rand();
 	}
 	void printData(int csp_no){
 		cout<<"Inside CSP:"<<csp_no<<endl;
@@ -49,21 +52,20 @@ public:
 			cout<<endl;
 		}
 	}
-	//TODO
+
+	/*
+	Currently Threshold reputation is a static entity and remain constant throughout. Given a random value.
 	double setThresholdReputation(){
 
 	}
+	*/
 
 	double getThresholdRep(){
 		return reputation_th;
 	}
 
-	double getAcceptanceRate(){
-		return acceptance_rate;
-	}
-	//TODO
-	double setAcceptanceRate(){
-
+	double getThresholdAcceptance(){
+		return acceptance_th;
 	}
 
 	double getPrice(int user, int resource){
@@ -90,25 +92,38 @@ private:
 	int popularity[n_resource];
 	double avg_price[n_csp][n_resource];
 	double reputation[n_csp];
+	int accepted_resource[n_csp]; //to be incremented only when a particular CSP's resource gets accepted.
 public:
 	Collective_CSP(){
 		for(int i=0; i<n_resource; i++){
-			popularity[i] = rand()%90+10; //no. of times resource requested is between 10->100 initially
+			popularity[i] = rand()%10; //no. of times resource requested is between 0->10 initially
 		}
 		for(int i=0; i<n_csp; i++){
 			reputation[i] = (double)(rand()%(max_repo-min_repo) + min_repo)/100.00;
 		}
+		for(int i=0; i<n_csp; i++){
+			accepted_resources[i] = (double)(rand()%(max_acc-min_acc) + min_acc);
+		}
 	}
-	void update_csp_manager(int csp_no, CSP csp){
+	void update_csp_manager(int csp_no, CSP &csp){
 		for(int i=0; i<n_resource; i++){
 			avg_price[csp_no][i] = csp.getAvgPrice(i);
 		}
 	}
+	double getAcceptanceRate(int iteration_no, int csp){
+		return accepted_resources[csp]/(double)(iteration_no*n_users*n_resource);
+	}
+	
+	int getAcceptedResource(int csp){
+		return accepted_resources[csp];
+	}
+
+	void setAcceptedResource(int csp){ // need to called when the resouce for a particular CSP gets accepted
+		accepted_resources[csp] ++;
+	}
+
 	int getResourcePopularity(int res_no){
 		return popularity[res_no];
-	}
-	void setResourcePopularity(int res_no){
-		popularity[res_no] ++;
 	}
 
 	double getMarketCompetition(int res_no){
@@ -164,29 +179,37 @@ vector<CSP> csps;
 void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
 	csps[csp].setUserResPrice(price, user, resource);
 	csp_manager.update_csp_manager(csp,csps[csp]);
-	csp_manager.setResourcePopularity(resource);
+	//csp_manager.setResourcePopularity(resource);
 }
 
 // Dynammic pricing strategy follows. 
 //Following code will return the price CSP i will be offering for resource j,(Rij).
+
+//---Need to pass iteration_no in this function //
 double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager){
 
 	int resouce_popularity = csp_manager.getResourcePopularity(resource);
 	double avg_price_resource = csp_manager.getMarketCompetition(resource);
-	//cout<<"AVG Price->"<<avg_price_resource<<endl;
-	double avg_market_price = csp_manager.getAveragePriceResource(resource);
-	//cout<<"AVG Market Price->"<<avg_market_price<<endl;
 	double previous_price = csps[csp].getPrice(user, resource);
 	double threshold_rep = csps[csp].getThresholdRep();
-	//cout<<"Th Repo->"<<threshold_rep<<endl;
 	double current_rep = csp_manager.getReputation(csp);
-	//cout<<"Current Repo->"<<current_rep<<endl;
-	double acceptance_rate = csps[csp].getAcceptanceRate();
-	double Pij = previous_price + ((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
-	//cout<<"Test->"<<((avg_price_resource-previous_price)*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity<<endl;
+	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
+	double acceptance_th = csps[csp].getThresholdAcceptance();
+	double Pij = previous_price + ((acceptance_rate-acceptance_th) *(avg_price_resource-previous_price)
+									*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
 	return Pij;
 }
 
+double getDynamicPrice_gi(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager){
+
+	double previous_price = csps[csp].getPrice(user, resource);
+	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
+	double acceptance_th = csps[csp].getThresholdAcceptance();
+	double avg_market_price = csp_manager.getAveragePriceResource(resource);
+	double Pij = previous_price + 
+				(acceptance_rate - acceptance_th)*(epsilon*previous_price + (1-epsilon)*avg_market_price));
+	return Pij;
+}
 
 typedef struct user{
 	double risk_lambda;
