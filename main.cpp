@@ -26,6 +26,7 @@ const int max_acc_th = 70;
 const int min_price = 5;
 const int max_price = 20;
 const double epsilon = 0.4;
+const double rho = 0.5;
 
 
 class CSP {
@@ -201,7 +202,7 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
 	double acceptance_th = csps[csp].getThresholdAcceptance();
 	double offset = ((acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)/2
-									*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
+									*exp(rho*(current_rep-threshold_rep)))/resouce_popularity;
 	double Pij = previous_price + offset;
 	// cout<<" csp: "<<csp<<" res: "<<resource<<" u:"<<user<<" iter:"<<iteration_no;
 	// cout<<" f:"<<(acceptance_rate-acceptance_th)<<" s:"<<(avg_price_resource+previous_price);
@@ -360,8 +361,16 @@ void updateJobRatings(int uid, int iter){
 	vector<double> jratings = users[uid].job_rating[iter-1];
 	for(int c=0;c<n_csp;c++){
 		if(jratings[c] < 0.98)
-			jratings[c]+= 0.01;
+			jratings[c]+= 0.001;
 	}
+	users[uid].job_rating.push_back(jratings);
+}
+void updatestaticJobRatings(int uid, int iter){
+	vector<double> jratings = users[uid].job_rating[iter-1];
+	// for(int c=0;c<n_csp;c++){
+	// 	if(jratings[c] < 0.98)
+	// 		jratings[c]+= 0.01;
+	// }
 	users[uid].job_rating.push_back(jratings);
 }
 double find_jain(vector<double> &revenue){
@@ -407,7 +416,7 @@ void interations(){
 				//cout<<revenue[c]<<" ";
 				revenue[c] = 0;
 			}
-			cout<<endl;
+			//cout<<endl;
 		}
 		// Using previous Job Ratings to update things for users
 		updateLocalTrust(iter);
