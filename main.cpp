@@ -4,22 +4,27 @@
 #include<vector>
 #include<limits.h>
 #include<math.h>
+#include <time.h>
 #include<iostream>
 using namespace std;
 
-const int n_users = 10; 
+const int n_users = 5; 
 const int n_resource = 5; 
 const int n_csp = 5;
 const int min_jr = 50;					// JR to be divided by 100, [0,1]
-const int max_jr = 55;
+const int max_jr = 75;
 const int n_iterations = 1000;
 const int freq = 100;
-const int min_budget = 10;
+const int min_budget = 40;
 const int max_budget = 100;
 const int max_repo = 55;
 const int min_repo = 50;
-const int max_acc = 50;
-const int min_acc = 30;
+const int max_acc = 70;
+const int min_acc = 50;
+const int min_acc_th = 50;
+const int max_acc_th = 70;
+const int min_price = 5;
+const int max_price = 20;
 const double epsilon = 0.4;
 
 
@@ -32,18 +37,18 @@ public:
 	CSP(){
 		for(int i=0; i<n_users; i++){
 			for(int j=0; j<n_resource; j++){
-				user_res_price[i][j] = rand()%40+10;
+				user_res_price[i][j] = rand()%(max_price-min_price)+min_price;
 			}
 		}
 		reputation_th = (double)(rand()%(max_repo-min_repo) + min_repo)/100.00;
-		acceptance_th = rand();
+		acceptance_th =  (double)(rand()%(max_acc_th-min_acc_th) + min_acc_th)/100.00;
 	}
 	void printData(int csp_no){
 		cout<<"Inside CSP:"<<csp_no<<endl;
 		cout<<"Printing Reputation Threshold: ";
 		cout<<reputation_th<<endl;
-		cout<<"Printing Acceptance Rate Data";
-		cout<<acceptance_rate<<endl;
+		cout<<"Printing Acceptance Rate Threshold";
+		cout<<acceptance_th<<endl;
 		cout<<"Printing User Resource Price Data"<<endl;
 		for(int i=0; i<n_users; i++){
 			for(int j=0; j<n_resource; j++){
@@ -57,7 +62,7 @@ public:
 	Currently Threshold reputation is a static entity and remain constant throughout. Given a random value.
 	double setThresholdReputation(){
 
-	}
+	}	
 	*/
 
 	double getThresholdRep(){
@@ -92,7 +97,7 @@ private:
 	int popularity[n_resource];
 	double avg_price[n_csp][n_resource];
 	double reputation[n_csp];
-	int accepted_resource[n_csp]; //to be incremented only when a particular CSP's resource gets accepted.
+	int accepted_resources[n_csp]; //to be incremented only when a particular CSP's resource gets accepted.
 public:
 	Collective_CSP(){
 		for(int i=0; i<n_resource; i++){
@@ -186,7 +191,7 @@ void updateData(int user, int csp, int resource, double price,vector<CSP> & csps
 //Following code will return the price CSP i will be offering for resource j,(Rij).
 
 //---Need to pass iteration_no in this function //
-double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager){
+double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager, int iteration_no){
 
 	int resouce_popularity = csp_manager.getResourcePopularity(resource);
 	double avg_price_resource = csp_manager.getMarketCompetition(resource);
@@ -195,19 +200,49 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	double current_rep = csp_manager.getReputation(csp);
 	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
 	double acceptance_th = csps[csp].getThresholdAcceptance();
-	double Pij = previous_price + ((acceptance_rate-acceptance_th) *(avg_price_resource-previous_price)
+	double offset = ((acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)/2
 									*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
+	double Pij = previous_price + offset;
+	// cout<<" csp: "<<csp<<" res: "<<resource<<" u:"<<user<<" iter:"<<iteration_no;
+	// cout<<" f:"<<(acceptance_rate-acceptance_th)<<" s:"<<(avg_price_resource+previous_price);
+	// cout<<" t:"<<(acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)/2<<" fo:"<<exp(0.2*(current_rep-threshold_rep));
+	// cout<<" fi:"<<((acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)/2
+	// 								*exp(0.2*(current_rep-threshold_rep)));
+	// cout<<" si:"<<resouce_popularity<<" off:"<<((acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)
+	// 								*exp(0.2*(current_rep-threshold_rep)))/resouce_popularity;
+	// cout<<" pt-1:"<<previous_price;
+	// cout<<endl;
+	if(fabs(offset) > (previous_price/3.0)){
+		if(offset>0)
+			Pij = 4.0*previous_price/3.00;
+		else
+			Pij = 2.0*previous_price/3.00;
+	}
+
 	return Pij;
 }
 
-double getDynamicPrice_gi(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager){
+double getDynamicPrice_gi(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager, int iteration_no){
 
 	double previous_price = csps[csp].getPrice(user, resource);
 	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
 	double acceptance_th = csps[csp].getThresholdAcceptance();
 	double avg_market_price = csp_manager.getAveragePriceResource(resource);
 	double Pij = previous_price + 
-				(acceptance_rate - acceptance_th)*(epsilon*previous_price + (1-epsilon)*avg_market_price));
+				(acceptance_rate - acceptance_th)*(epsilon*previous_price + (1-epsilon)*avg_market_price);
+
+	double offset = (acceptance_rate - acceptance_th)*(epsilon*previous_price + (1-epsilon)*avg_market_price);
+
+	// cout<<" csp: "<<csp<<" res: "<<resource<<" u:"<<user<<" iter:"<<iteration_no;
+	// cout<<" f:"<<(acceptance_rate-acceptance_th)<<" s:"<<((1-epsilon)*avg_market_price+epsilon*previous_price);
+	// cout<<" offset:"<<offset<<" prev:"<<previous_price<<endl;
+
+	if(fabs(offset) > (previous_price/3.0)){
+		if(offset>0)
+			Pij = 4.0*previous_price/3.00;
+		else
+			Pij = 2.0*previous_price/3.00;
+	}
 	return Pij;
 }
 
@@ -311,11 +346,14 @@ double computeUtility(int uid, int cid, int res, int iter){
 	
 	double a = users[uid].risk_lambda;
 	double b = users[uid].ref_trust[cid];
-	double top = -1.0*(users[uid].ref_trust[cid]);
+	double top = -1.0*(a*b);
 	
-	double utility = ( 1.0 - exp(top)) / (1.0-exp(-1.0*users[uid].risk_lambda));
+	double utility = ( 1.0 - exp(top)) / (1.0-exp(-1.0*a));
+	if(a==0)
+		utility = 1;
 
 	utility /= exp_cost;
+	//cout<< " Utility: "<<utility<<" u:"<<uid<<" cid"<<cid<<" res:"<<res<<" iter:"<<iter<<" price:"<<price_res_cid<<endl;
 	return utility;
 }
 void updateJobRatings(int uid, int iter){
@@ -326,16 +364,49 @@ void updateJobRatings(int uid, int iter){
 	}
 	users[uid].job_rating.push_back(jratings);
 }
+double find_jain(vector<double> &revenue){
+	double num_sum=0;
+	double den_sum = 0;
+	for(int i=0;i<n_csp;i++){
+		num_sum+=revenue[i];
+		den_sum+=pow(revenue[i],2);
+	}
+	num_sum = pow(num_sum,2);
+	return num_sum/(double)(n_csp*den_sum); 
+}
 void interations(){
 	vector<double> revenue(n_csp, 0.00);
 	for(int iter=1;iter<=n_iterations;iter++){
 		//cout << "Iteration : "<<iter<<endl;
-		// NOTE: user user_rating of iter-1'th index
+		// NOTE: use user_rating of iter-1'th index
 		if(iter%freq==0){
 			// Fetch Points {iter: [revenues for csps]} 
-			//cout <<"I"<<iter<<endl;
-			for(int c=0;c<n_csp;c++)
-				cout<<revenue[c]<<" ";
+			// cout <<endl<<endl<<"I :"<<iter<<endl;
+
+			// Apply dynamic pricing
+			for(int u=0;u<n_users; u++){
+				//cout<<" User: "<<u<<" -----------"<<endl;
+				for(int c=0;c<n_csp;c++){
+					for(int res=0;res<n_resource;res++){
+						updateData(u,c,res, getDynamicPrice_gi(c,res,u,csps,csp_manager, iter), csps, csp_manager);
+					}
+					//csps[c].printData(c);
+				}
+			}
+			//csp_manager.printData();
+
+			// cout<<" Purchase History"<<endl;
+			// for(int i=0;i<n_csp;i++){
+			// 	cout<<" "<<csp_manager.getAcceptedResource(i);
+			// }
+			// cout<<endl;
+
+			cout<<find_jain(revenue)<<endl;
+			// cout<<" Current revenue:"<<endl;	
+			for(int c=0;c<n_csp;c++){
+				//cout<<revenue[c]<<" ";
+				revenue[c] = 0;
+			}
 			cout<<endl;
 		}
 		// Using previous Job Ratings to update things for users
@@ -364,16 +435,13 @@ void interations(){
 			// users[u].util_res[res] contains the chosen csp index.
 			for(int res=0;res<n_resource;res++){
 				int chosen_csp = users[u].util_res[res].second;
+				csp_manager.setAcceptedResource(chosen_csp);
 				revenue[chosen_csp] += csps[chosen_csp].getPrice(u, res);
 			}
 
 			// Now Update new Job Ratings
 			updateJobRatings(u, iter);
 
-			// Apply dynamic pricing
-			for(int c=0;c<n_csp;c++)
-				for(int res=0;res<n_resource;res++)
-					updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager), csps, csp_manager);
 		}
 	}
 }
@@ -381,10 +449,11 @@ void interations(){
 
 
 int main(){
+	//srand (time(NULL));
 	for(int i=0; i<n_csp; i++){
 		CSP csp;
 		csps.push_back(csp);
-		//csps[i].printData(i);
+		csps[i].printData(i);
 		csp_manager.update_csp_manager(i,csps[i]);
 	}
 	//csp_manager.printData();

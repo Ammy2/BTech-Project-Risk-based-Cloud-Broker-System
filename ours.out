@@ -1,0 +1,112 @@
+Inside CSP:0
+Printing Reputation Threshold: 0.54
+Printing Acceptance Rate Threshold0.63
+Printing User Resource Price Data
+6 5 11 12 6 
+16 13 17 14 7 
+10 7 18 12 15 
+19 17 17 8 19 
+17 18 6 6 12 
+Inside CSP:1
+Printing Reputation Threshold: 0.54
+Printing Acceptance Rate Threshold0.63
+Printing User Resource Price Data
+11 19 19 12 13 
+19 10 5 13 6 
+6 10 16 8 7 
+10 6 6 5 5 
+19 17 16 10 6 
+Inside CSP:2
+Printing Reputation Threshold: 0.54
+Printing Acceptance Rate Threshold0.62
+Printing User Resource Price Data
+7 14 5 17 5 
+19 17 19 19 8 
+10 12 8 11 13 
+13 14 8 16 19 
+9 17 5 16 8 
+Inside CSP:3
+Printing Reputation Threshold: 0.54
+Printing Acceptance Rate Threshold0.61
+Printing User Resource Price Data
+6 11 14 19 5 
+15 19 18 7 11 
+7 7 17 17 12 
+16 6 10 16 6 
+5 19 9 19 15 
+Inside CSP:4
+Printing Reputation Threshold: 0.53
+Printing Acceptance Rate Threshold0.65
+Printing User Resource Price Data
+12 17 16 11 10 
+14 12 17 6 7 
+8 11 10 6 13 
+19 19 18 11 7 
+19 8 19 5 8 
+ #Users: 5
+ #CSPs: 5
+ #Resources: 5
+ min_jr: 0.5
+ max_jr: 0.75
+ min_budget: 40
+ max_budget: 100
+ min_repo: 0.5
+ max_repo: 0.55
+ n_iterations: 1000
+ freq: 100
+ Alpha: 0.83
+ User: 0
+ Risk Lambda: -2
+ Budget: 66
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.74
+  CSP: 1 JRating: 0.71
+  CSP: 2 JRating: 0.73
+  CSP: 3 JRating: 0.68
+  CSP: 4 JRating: 0.7
+ User: 1
+ Risk Lambda: 1
+ Budget: 48
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.71
+  CSP: 1 JRating: 0.55
+  CSP: 2 JRating: 0.54
+  CSP: 3 JRating: 0.63
+  CSP: 4 JRating: 0.64
+ User: 2
+ Risk Lambda: -1
+ Budget: 64
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.5
+  CSP: 1 JRating: 0.68
+  CSP: 2 JRating: 0.5
+  CSP: 3 JRating: 0.59
+  CSP: 4 JRating: 0.64
+ User: 3
+ Risk Lambda: 0
+ Budget: 65
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.62
+  CSP: 1 JRating: 0.56
+  CSP: 2 JRating: 0.68
+  CSP: 3 JRating: 0.66
+  CSP: 4 JRating: 0.52
+ User: 4
+ Risk Lambda: 1
+ Budget: 75
+ Initial Job Ratings: 
+  CSP: 0 JRating: 0.61
+  CSP: 1 JRating: 0.57
+  CSP: 2 JRating: 0.51
+  CSP: 3 JRating: 0.62
+  CSP: 4 JRating: 0.53
+663 7128 1782 2109 4950 
+1983.19 11553.5 3197.07 4512.38 8991.21 
+4702.3 14176.6 5558.52 5797.58 10526.2 
+6737.99 16397.4 7314.14 6597.59 11656.7 
+9103.92 17338.4 8588.51 7135.69 12472.4 
+10911.4 17781.4 9803.41 7494.42 13057.9 
+12307.5 18099.9 10698.7 7733.57 13472.6 
+13394.7 18498.2 11171.3 7893 13758.5 
+14245.7 18773 11496.9 7999.29 13949.1 
+14605.4 18956.2 11714 8070.15 14374 
