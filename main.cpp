@@ -397,7 +397,7 @@ void interations(){
 				//cout<<" User: "<<u<<" -----------"<<endl;
 				for(int c=0;c<n_csp;c++){
 					for(int res=0;res<n_resource;res++){
-						updateData(u,c,res, getDynamicPrice_gi(c,res,u,csps,csp_manager, iter), csps, csp_manager);
+						updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager, iter), csps, csp_manager);
 					}
 					//csps[c].printData(c);
 				}
@@ -410,13 +410,13 @@ void interations(){
 			// }
 			// cout<<endl;
 
-			cout<<find_jain(revenue)<<endl;
-			// cout<<" Current revenue:"<<endl;	
+			//cout<<find_jain(revenue)<<endl;
+			cout<<" Current revenue:"<<endl;	
 			for(int c=0;c<n_csp;c++){
-				//cout<<revenue[c]<<" ";
-				revenue[c] = 0;
+				cout<<revenue[c]<<" ";
+				//revenue[c] = 0;
 			}
-			//cout<<endl;
+			cout<<endl;
 		}
 		// Using previous Job Ratings to update things for users
 		updateLocalTrust(iter);
