@@ -59,6 +59,12 @@ public:
 		}
 	}
 
+	/*
+	Currently Threshold reputation is a static entity and remain constant throughout. Given a random value.
+	double setThresholdReputation(){
+
+	}	
+	*/
 
 	double getThresholdRep(){
 		return reputation_th;
@@ -69,6 +75,7 @@ public:
 	}
 
 	double getPrice(int user, int resource){
+		//cout << user<<" "<<resource<<endl;
 		return user_res_price[user][resource];
 	}
 
@@ -145,6 +152,10 @@ public:
 		return reputation[csp_no];
 	}
 
+	//TODO
+	void setReputation(int csp_no, double reputation){
+
+	}
 
 	void printData(){
 		cout<<"Inside Collective CSP:"<<endl;
@@ -174,11 +185,13 @@ vector<CSP> csps;
 void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
 	csps[csp].setUserResPrice(price, user, resource);
 	csp_manager.update_csp_manager(csp,csps[csp]);
+	//csp_manager.setResourcePopularity(resource);
 }
 
 // Dynammic pricing strategy follows. 
 //Following code will return the price CSP i will be offering for resource j,(Rij).
 
+//---Need to pass iteration_no in this function //
 double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Collective_CSP & csp_manager, int iteration_no){
 
 	int resouce_popularity = csp_manager.getResourcePopularity(resource);
@@ -445,6 +458,7 @@ void interations(){
 
 
 int main(){
+	//srand (time(NULL));
 	for(int i=0; i<n_csp; i++){
 		CSP csp;
 		csps.push_back(csp);
@@ -458,7 +472,7 @@ int main(){
 	// price = getDynamicPrice(2,4,7,csps, csp_manager);
 	// cout<<"Price->"<<price<<endl;
 	// price = getDynamicPrice(3,0,6,csps, csp_manager);
-	// cout<<"Price->"<<price<<endl;
+	// cout<<"Price->"<<price<<endl;	// Aman's portion. Implementing users utility function.
 
 	user_initialize();
 	interations();
