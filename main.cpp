@@ -23,10 +23,11 @@ const int max_acc = 70;
 const int min_acc = 50;
 const int min_acc_th = 50;
 const int max_acc_th = 70;
-const int min_price = 5;
+const int min_price = 10;
 const int max_price = 20;
 const double epsilon = 0.4;
 const double rho = 0.5;
+const int min_resource_price = 5.0;
 
 
 class CSP {
@@ -92,10 +93,14 @@ private:
 	double avg_price[n_csp][n_resource];
 	double reputation[n_csp];
 	int accepted_resources[n_csp]; //to be incremented only when a particular CSP's resource gets accepted.
+	double min_price_resource[n_resource]; // between 5-10, price range initislly is 10-20
 public:
 	Collective_CSP(){
 		for(int i=0; i<n_resource; i++){
 			popularity[i] = rand()%10; //no. of times resource requested is between 0->10 initially
+		}
+		for(int i=0; i<n_resource; i++){
+			min_price_resource[i] = double(rand()%min_resource_price + min_resource_price);
 		}
 		for(int i=0; i<n_csp; i++){
 			reputation[i] = (double)(rand()%(max_repo-min_repo) + min_repo)/100.00;
@@ -104,6 +109,11 @@ public:
 			accepted_resources[i] = (double)(rand()%(max_acc-min_acc) + min_acc);
 		}
 	}
+	
+	double getMinPriceResource(int resource){
+		return min_price_resource[resource];
+	}
+
 	void update_csp_manager(int csp_no, CSP &csp){
 		for(int i=0; i<n_resource; i++){
 			avg_price[csp_no][i] = csp.getAvgPrice(i);
@@ -172,7 +182,9 @@ Collective_CSP csp_manager;
 vector<CSP> csps;
 
 void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
-	csps[csp].setUserResPrice(price, user, resource);
+	if(price >= getMinPriceResource(resource)){
+		csps[csp].setUserResPrice(price, user, resource);
+	}
 	csp_manager.update_csp_manager(csp,csps[csp]);
 }
 
