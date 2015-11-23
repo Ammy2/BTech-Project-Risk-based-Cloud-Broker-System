@@ -19,15 +19,13 @@ const int min_budget = 40;
 const int max_budget = 100;
 const int max_repo = 55;
 const int min_repo = 50;
-const int max_acc = 70;
-const int min_acc = 50;
-const int min_acc_th = 50;
-const int max_acc_th = 70;
+const int min_acc_th = 15;
+const int max_acc_th = 25;
 const int min_price = 10;
 const int max_price = 20;
 const double epsilon = 0.4;
 const double rho = 0.5;
-const int min_resource_price = 5.0;
+const int min_resource_price = 5;
 
 
 class CSP {
@@ -100,13 +98,13 @@ public:
 			popularity[i] = rand()%10; //no. of times resource requested is between 0->10 initially
 		}
 		for(int i=0; i<n_resource; i++){
-			min_price_resource[i] = double(rand()%min_resource_price + min_resource_price);
+			min_price_resource[i] = (double)((rand()%min_resource_price) + min_resource_price);
 		}
 		for(int i=0; i<n_csp; i++){
 			reputation[i] = (double)(rand()%(max_repo-min_repo) + min_repo)/100.00;
 		}
 		for(int i=0; i<n_csp; i++){
-			accepted_resources[i] = (double)(rand()%(max_acc-min_acc) + min_acc);
+			accepted_resources[i] = 0;//((rand()%(max_acc-min_acc)) + min_acc);
 		}
 	}
 	
@@ -182,8 +180,12 @@ Collective_CSP csp_manager;
 vector<CSP> csps;
 
 void updateData(int user, int csp, int resource, double price,vector<CSP> & csps, Collective_CSP & csp_manager){
-	if(price >= getMinPriceResource(resource)){
+	if(price >= csp_manager.getMinPriceResource(resource)){
 		csps[csp].setUserResPrice(price, user, resource);
+	}
+	else{
+		double a = csp_manager.getMinPriceResource(resource);
+		csps[csp].setUserResPrice(a, user, resource);
 	}
 	csp_manager.update_csp_manager(csp,csps[csp]);
 }
@@ -200,6 +202,7 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	double current_rep = csp_manager.getReputation(csp);
 	double acceptance_rate = csp_manager.getAcceptanceRate(iteration_no, csp);
 	double acceptance_th = csps[csp].getThresholdAcceptance();
+	//cout<<" a:"<< acceptance_rate<<" at:" <<acceptance_th<<" diff:"<<(acceptance_rate-acceptance_th)<<endl;
 	double offset = ((acceptance_rate-acceptance_th) *(avg_price_resource+previous_price)/2
 									*exp(rho*(current_rep-threshold_rep)))/resouce_popularity;
 	double Pij = previous_price + offset;
@@ -213,8 +216,10 @@ double getDynamicPrice(int csp, int resource, int user, vector<CSP> & csps, Coll
 	// cout<<" pt-1:"<<previous_price;
 	// cout<<endl;
 	if(fabs(offset) > (previous_price/3.0)){
-		if(offset>0)
+		if(offset>0){
 			Pij = 4.0*previous_price/3.00;
+			//cout<<"Mushkill karde jina meraaa"<<endl;			
+		}
 		else
 			Pij = 2.0*previous_price/3.00;
 	}
@@ -396,7 +401,7 @@ void interations(){
 				//cout<<" User: "<<u<<" -----------"<<endl;
 				for(int c=0;c<n_csp;c++){
 					for(int res=0;res<n_resource;res++){
-						updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager, iter), csps, csp_manager);
+						//updateData(u,c,res, getDynamicPrice(c,res,u,csps,csp_manager, iter), csps, csp_manager);
 					}
 					//csps[c].printData(c);
 				}
@@ -409,11 +414,11 @@ void interations(){
 			// }
 			// cout<<endl;
 
-			//cout<<find_jain(revenue)<<endl;
-			cout<<" Current revenue:"<<endl;	
+			cout<<find_jain(revenue);
+			//cout<<" Current revenue:"<<endl;	
 			for(int c=0;c<n_csp;c++){
-				cout<<revenue[c]<<" ";
-				//revenue[c] = 0;
+				//cout<<revenue[c]<<" ";
+				revenue[c] = 0;
 			}
 			cout<<endl;
 		}
@@ -449,6 +454,7 @@ void interations(){
 
 			// Now Update new Job Ratings
 			updateJobRatings(u, iter);
+			//updatestaticJobRatings(u, iter);
 
 		}
 	}
